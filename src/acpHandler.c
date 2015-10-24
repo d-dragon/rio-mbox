@@ -83,6 +83,7 @@ void setSignalHandlers(void);
 static void handleSigSegv(int signum, siginfo_t *pInfo, void *pVoid);
 int isRequestMessageValid(char *msg_id, char *device_id, char *cmd, char *arg,
 		char *arg_name);
+int MediaPlayerUtil(char *request);
 /*
  pthread_mutex_t g_file_buff_mutex_2 = PTHREAD_MUTEX_INITIALIZER;
  pthread_cond_t	g_file_thread_cond = PTHREAD_COND_INITIALIZER;
@@ -1444,7 +1445,9 @@ void TaskReceiver() {
 		appLog(LOG_ERR, "allocate memory failed - app restart");
 		exit(EXIT_FAILURE);
 	}
+	
 	setSignalHandlers();
+	MediaPlayerUtil("stop");
 	while (1) {
 		ret = connectStation((char *) g_device_info.station_addr);
 		if (ret == ACP_FAILED) {
@@ -1477,7 +1480,7 @@ void TaskReceiver() {
 				appLog(LOG_ERR, "station was disconnected");
 				close(stream_sock_fd);
 				free(msg_buff);
-				closePlayerfifo(FIFO_PLAYER_PATH);
+				MediaPlayerUtil("stop");
 				//marking station is down for next step
 				break;
 			} else {
@@ -1658,4 +1661,13 @@ int pauseMedia(char *message) {
 	free(resp_for);
 	free(device_id);
 	return ACP_SUCCESS;
+}
+
+int MediaPlayerUtil(char *request) {
+
+	char shell[128];
+
+	sprintf(shell, "%s %s", PLAYER_CONTROLLER, request);
+	appLog(LOG_DEBUG, "%s", shell);
+	return system(shell);
 }
