@@ -1008,9 +1008,11 @@ int playMedia(char *message) {
 		if (strncmp(g_file_name_playing, info->filename, strlen(info->filename))
 				== 0) { //Audio file is playing
 
+			appLog(LOG_DEBUG, "g_file_name_playing: %s", g_file_name_playing);
 			sendResultResponse(msg_id, cmd, ACP_SUCCESS, g_file_name_playing);
 		} else { //play another file
 			//stop recently player thread
+			appLog(LOG_DEBUG, "g_file_name_playing: %s", g_file_name_playing);
 			memset(shell_cmd, 0x00, 256);
 			snprintf(shell_cmd, 256, "echo -n q > %s", FIFO_PLAYER_PATH);
 			if (system(shell_cmd) != 0) {
@@ -1022,6 +1024,7 @@ int playMedia(char *message) {
 						"stopped!");
 			} else { //quit audio player success, terminate player thread
 				usleep(200000); //sleep 0.2s for waiting playing thread exit
+				appLog(LOG_DEBUG, "g_file_name_playing: %s", g_file_name_playing);
 				int check_count = 0;
 				do {
 					if (g_audio_flag == AUDIO_STOP) {
@@ -1058,6 +1061,7 @@ int playMedia(char *message) {
 	} else if (g_audio_flag == AUDIO_PAUSE) {
 		if (strncmp(g_file_name_playing, info->filename, strlen(info->filename))
 				== 0) {
+			appLog(LOG_DEBUG, "current: %s\tnew:%s\n", g_file_name_playing, info->filename);
 			snprintf(shell_cmd, 256, "%s pause", PLAYER_CONTROLLER);
 			appLog(LOG_DEBUG, "resume cmd: %s", shell_cmd);
 			if (system(shell_cmd) == 0) {
@@ -1074,8 +1078,10 @@ int playMedia(char *message) {
 			free(info);
 		} else { //play another file
 				 //stop recently player thread
+			appLog(LOG_DEBUG, "current: %s\tnew:%s\n", g_file_name_playing, info->filename);
 			memset(shell_cmd, 0x00, 256);
 			snprintf(shell_cmd, 256, "%s stop", PLAYER_CONTROLLER);
+			appLog(LOG_DEBUG, "run: %s", shell_cmd);
 			if (system(shell_cmd) != 0) {
 				pthread_cancel(g_play_audio_thd);
 				pthread_mutex_lock(&g_audio_status_mutex);
@@ -1122,9 +1128,8 @@ int playMedia(char *message) {
 
 		memset(g_file_name_playing, 0x00, FILE_NAME_MAX);
 		snprintf(g_file_name_playing, FILE_NAME_MAX, "%s", info->filename);
-		appLog(LOG_DEBUG, "debug-----");
+		appLog(LOG_DEBUG, "g_file_name_playing %s", g_file_name_playing);
 		ret = initMediaPlayer(info);
-		appLog(LOG_DEBUG, "debug-----");
 		if (ret == ACP_SUCCESS) {
 			sendResultResponse(msg_id, cmd, ACP_SUCCESS, g_file_name_playing);
 		} else {

@@ -289,6 +289,7 @@ void *playMediaThread(void *arg) {
 	pthread_mutex_lock(&g_audio_status_mutex);
 	g_audio_flag = AUDIO_STOP;
 	pthread_mutex_unlock(&g_audio_status_mutex);
+	appLog(LOG_DEBUG, "clean g_file_name_playing");
 	memset(g_file_name_playing, 0x00, FILE_NAME_MAX);
 	free(info->filename);
 	free(info->type);
