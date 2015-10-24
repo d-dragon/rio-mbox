@@ -10,7 +10,7 @@
 
 
 #ifdef RPI
-#define DEFAULT_PATH "/media/data/mbox/"
+#define DEFAULT_PATH "/media/data/"
 #define SOURCE_PATH "/home/pi/Smart_Classroom/src/"
 #define PY_SYS_PATH "sys.path.append('/user/bin')"
 #define DEFAULT_CONFIG_PATH "/etc/mbox.cfg"

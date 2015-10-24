@@ -807,7 +807,6 @@ int playAudio(char *message) {
 	free(pfile_name);
 	return ret;
 }
-
 int playAudioAlt(char *message) {
 
 	int ret;
@@ -975,7 +974,6 @@ int playAudioAlt(char *message) {
 	free(resp_cmd);
 
 }
-
 int playMedia(char *message) {
 
 	int ret;
@@ -1014,7 +1012,7 @@ int playMedia(char *message) {
 			//stop recently player thread
 			appLog(LOG_DEBUG, "g_file_name_playing: %s", g_file_name_playing);
 			memset(shell_cmd, 0x00, 256);
-			snprintf(shell_cmd, 256, "echo -n q > %s", FIFO_PLAYER_PATH);
+			snprintf(shell_cmd, 256, "%s stop", PLAYER_CONTROLLER);
 			if (system(shell_cmd) != 0) {
 				pthread_cancel(g_play_audio_thd); //force stop thread
 				pthread_mutex_lock(&g_audio_status_mutex);
