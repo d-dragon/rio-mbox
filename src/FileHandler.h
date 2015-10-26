@@ -12,8 +12,8 @@
 #ifdef RPI
 #define DEFAULT_PATH "/media/data/"
 #define SOURCE_PATH "/home/pi/Smart_Classroom/src/"
-//#define PY_SYS_PATH "sys.path.append('/home/pi/Smart_Classroom/Media_Hub/src')"
-#define PY_SYS_PATH "sys.path.append('/usr/bin')"
+#define PY_SYS_PATH "sys.path.append('/home/pi/Smart_Classroom/Media_Hub/src')"
+//#define PY_SYS_PATH "sys.path.append('/usr/bin')"
 #define DEFAULT_CONFIG_PATH "/etc/mbox.cfg"
 #else
 #define DEFAULT_PATH "/home/duyphan/git/Smart_Classroom/Media_Hub/List_File/"

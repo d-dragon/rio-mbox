@@ -152,9 +152,9 @@ int getFileFromFtp(char *FtpServerIP, char *FileName, char *UserName,
 
 	PyObject *pName, *pModule, *pFunc;
 	PyObject *pArgs, *pValue;
-	
+/*	
 	char shell[256];
-	sprintf(shell, "wget --user=%s --password='%s' ftp://%s:2121/demo/%s -O /home/pi/%s", UserName, Password, FtpServerIP, FileName, FileName);
+	sprintf(shell, "wget --user=%s --password='%s' \"ftp://%s:2121/demo/%s\" -O /media/data/\"%s\"", UserName, Password, FtpServerIP, FileName, FileName);
 	if (system(shell) == 0) {
 		appLog(LOG_DEBUG, "Got %s successfully!", FileName);
 		return FILE_SUCCESS;
@@ -163,6 +163,7 @@ int getFileFromFtp(char *FtpServerIP, char *FileName, char *UserName,
 		appLog(LOG_DEBUG, "Got %s failed!", FileName);
 		return FILE_ERROR;
 	}
+*/
 	int i, numargs;
 
 	if (UserName != NULL) {
