@@ -1,7 +1,7 @@
 PROJECT	= Mbox
 CC		= gcc
 
-CFLAGS	= -Wall -g -O0 -I./inc -I/usr/include/python2.7 -I/usr/include/libxml2 
+CFLAGS	= -Wall -g -O0 -D RPI -D DEBUG -I./inc -I/usr/include/python2.7 -I/usr/include/libxml2 
 DEPFLAGS= -MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td
 POSTCOMPILE= mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d
 LIBS	= -pthread -lrt -lpython2.7 -lxml2 -lconfig -lm
@@ -40,10 +40,10 @@ $(DEPDIR)/%.d: ;
 .PHONY: clean install
  
 install:
-	cp $(PROJECT) /usr/bin/
-	cp startMediaHub.sh /usr/bin/
-	cp omxplayer_dbus_control.sh /usr/bin/
-	cp ftplib_example.py /usr/bin/
+	cp bin/$(PROJECT) /usr/bin/
+	cp files/startMediaHub.sh /usr/bin/
+	cp files/omxplayer_dbus_control.sh /usr/bin/
+	cp src/ftplib_example.py /usr/bin/
 
 clean:
 	rm -rf $(BINDIR) $(DEPDIR) $(OBJDIR)
