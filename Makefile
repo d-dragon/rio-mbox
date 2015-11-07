@@ -12,9 +12,6 @@ DEPDIR	= dep
 FILEDIR	= files
 SOURCEDIR = src
 
-
-#SRCFILES := $(shell find . -name '*.c')
-#OBJECTS 	:= $(patsubst %.c,$(OBJDIR)/%.o,$(SRCFILES))
 SRCFILES := $(wildcard $(SOURCEDIR)/*.c)
 OBJECTS := $(patsubst $(SOURCEDIR)/%.c,$(OBJDIR)/%.o,$(SRCFILES))
 
@@ -23,11 +20,6 @@ all: directories Mbox
 directories:
 	@clear
 	@echo "********Create directories*******"
-	@echo $(DIRS) 
-	@echo $(SUBDIRS)
-#	@echo $(SRCFILES)/*.c
-	@echo $(SRCFILES)
-	@echo $(OBJECTS)
 	@mkdir -p $(OBJDIR)
 	@mkdir -p $(BINDIR)
 	@mkdir -p $(DEPDIR)
@@ -45,4 +37,15 @@ $(OBJDIR)/%.o: $(SOURCEDIR)/%.c $(DEPDIR)/%.d
 
 $(DEPDIR)/%.d: ;
 
-include $(patsubst %,$(DEPDIR)/%.d,$(basename $(SRCFILES)))
+.PHONY: clean install
+ 
+install:
+	cp $(PROJECT) /usr/bin/
+	cp startMediaHub.sh /usr/bin/
+	cp omxplayer_dbus_control.sh /usr/bin/
+	cp ftplib_example.py /usr/bin/
+
+clean:
+	rm -rf $(BINDIR) $(DEPDIR) $(OBJDIR)
+
+#include $(patsubst %,$(DEPDIR)/%.d,$(basename $(SRCFILES)))
