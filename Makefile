@@ -4,7 +4,7 @@ CC		= gcc
 CFLAGS	= -Wall -g -O0 -D RPI -D DEBUG -I./inc -I/usr/include/python2.7 -I/usr/include/libxml2 
 DEPFLAGS= -MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td
 POSTCOMPILE= mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d
-LIBS	= -pthread -lrt -lpython2.7 -lxml2 -lconfig -lm
+LIBS	= -pthread -lrt -lpython2.7 -lxml2 -lconfig -lwiringPi -lm
 
 OBJDIR	= obj
 BINDIR 	= bin
