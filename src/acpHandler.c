@@ -11,6 +11,7 @@
 #include "FileHandler.h"
 #include "playAudio.h"
 #include "xmlHandler.h"
+#include "gpio.h"
 #include <endian.h>
 #include <strings.h>
 #include <unistd.h>
@@ -38,17 +39,23 @@ enum request_cmd_index {
 	PAUSE_AUDIO,
 	CHANGE_DEVICE_NAME,
 	DELETE_FILE,
+	SET_BINARY,
+	GET_BINARY,
 	CLOSE_TASK_HANDLER
 };
 
 static struct RequestCmd RequestCmdList[] = {
-		{ "GetPiInfo", GET_PI_INFO, 1, "" }, { "PiConnectServer",
-				PI_CONNECT_SERVER, 1, "server_ip" }, { "GetFile", GET_FILE, 2,
-				"list_file" }, { "PlayFile", PLAY_AUDIO, 1, "file_name" }, {
-				"StopFile", STOP_AUDIO, 1, "file_name" }, { "PauseFile",
-				PAUSE_AUDIO, 1, "file_name" }, { "ChangeRoomName",
-				CHANGE_DEVICE_NAME, 1, "new_name" }, { "DeleteFile",
-				DELETE_FILE, 1, "file_name" } };
+		{ "GetPiInfo", GET_PI_INFO, 1, "" },
+		{ "PiConnectServer",PI_CONNECT_SERVER, 1, "server_ip" }, 
+		{ "GetFile", GET_FILE, 2,"list_file" },
+		{ "PlayFile", PLAY_AUDIO, 1, "file_name" },
+		{ "StopFile", STOP_AUDIO, 1, "file_name" }, 
+		{ "PauseFile",PAUSE_AUDIO, 1, "file_name" }, 
+		{ "ChangeRoomName",	CHANGE_DEVICE_NAME, 1, "new_name" },
+		{ "SetBinary",	SET_BINARY, 1, "value" },
+		{ "GetBinary",	GET_BINARY, 0, "" },
+		{ "DeleteFile",	DELETE_FILE, 1, "file_name" } 
+};
 
 struct NotifyInfo {
 	const char *info_str;
@@ -84,6 +91,9 @@ static void handleSigSegv(int signum, siginfo_t *pInfo, void *pVoid);
 int isRequestMessageValid(char *msg_id, char *device_id, char *cmd, char *arg,
 		char *arg_name);
 int MediaPlayerUtil(char *request);
+void setRelayBinary(char *message);
+void getRelayBinary(char *message);
+
 /*
  pthread_mutex_t g_file_buff_mutex_2 = PTHREAD_MUTEX_INITIALIZER;
  pthread_cond_t	g_file_thread_cond = PTHREAD_COND_INITIALIZER;
@@ -689,6 +699,14 @@ int RequestMessageHandler(char *message) {
 	case DELETE_FILE:
 		appLog(LOG_DEBUG, "called delete file");
 		ret = deleteFile(message);
+		break;
+	case SET_BINARY:
+		appLog(LOG_DEBUG, "called set relay binary");
+		ret = setRelayBinary(message);
+		break;
+	case GET_BINARY:
+		appLog(LOG_DEBUG, "called get relay binary");
+		ret = getRelayBinary(message);
 		break;
 	default:
 		break;
@@ -1448,6 +1466,7 @@ void TaskReceiver() {
 	
 	setSignalHandlers();
 	MediaPlayerUtil("stop");
+	initializeGPIO();
 	while (1) {
 		ret = connectStation((char *) g_device_info.station_addr);
 		if (ret == ACP_FAILED) {
@@ -1662,6 +1681,34 @@ int pauseMedia(char *message) {
 	free(device_id);
 	return ACP_SUCCESS;
 }
+
+void setRelayBinary(char *message){
+
+	char *msg_id, *device_id, *command, value;
+
+	msg_id = getXmlElementByName(message, "id");
+	device_id = getXmlElementByName(message, "deviceid");
+	command = getXmlElementByName(message, "command");
+	value = getXmlElementByName(message, "value");
+
+	if(isRequestMessageValid(msg_id, device_id, command, NULL, NULL) != ACP_SUCCESS){
+		sendResultResponse(msg_id, command, ACP_FAILED, "Request invalid");
+	}else{
+		
+		setBinary(RELAYPIN1, atoi(value));
+		if (getBinary(RELAYPIN1) == atoi(value)){
+			sendResultResponse(msg_id, command, ACP_SUCCESS, value);
+		}else{
+			sendResultResponse(msg_id, command, ACP_FAILED, "");
+		}
+	}
+
+	free(msg_id);
+	free(device_id);
+	free(command);
+	free(value);
+}
+
 
 int MediaPlayerUtil(char *request) {
 

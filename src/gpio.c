@@ -7,10 +7,10 @@ void initializeGPIO(){
 	pinMode(RELAYPIN2, OUTPUT);
 }
 
-void setBinaryRelay(int pin, int value){
+void setBinary(int pin, int value){
 	digitalWrite(pin,value);
 }
 
-int getBinaryRelay(int pin){
+int getBinary(int pin){
 	return digitalRead(pin);
 }

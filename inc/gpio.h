@@ -10,6 +10,6 @@
 
 void initializeGPIO();
 
-void setBinaryRelay(int pin, int value);
-int getBinaryRelay(int pin);
+void setBinary(int pin, int value);
+int getBinary(int pin);
 #endif
