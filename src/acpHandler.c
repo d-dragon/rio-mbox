@@ -16,6 +16,7 @@
 #include <strings.h>
 #include <unistd.h>
 
+
 /*Task commands definition*/
 struct RequestCmd {
 	/*command*/
@@ -702,11 +703,11 @@ int RequestMessageHandler(char *message) {
 		break;
 	case SET_BINARY:
 		appLog(LOG_DEBUG, "called set relay binary");
-		ret = setRelayBinary(message);
+		setRelayBinary(message);
 		break;
 	case GET_BINARY:
 		appLog(LOG_DEBUG, "called get relay binary");
-		ret = getRelayBinary(message);
+		getRelayBinary(message);
 		break;
 	default:
 		break;
@@ -1709,6 +1710,34 @@ void setRelayBinary(char *message){
 	free(value);
 }
 
+void getRelayBinary(char *message){
+
+	char *msg_id, *device_id, *command;
+
+
+	msg_id = getXmlElementByName(message, "id");
+	device_id = getXmlElementByName(message, "deviceid");
+	command = getXmlElementByName(message, "command");
+
+	if(isRequestMessageValid(msg_id, device_id, command, NULL, NULL) != ACP_SUCCESS){
+		sendResultResponse(msg_id, command, ACP_FAILED, "Request invalid");
+	}else{
+
+		int relay_value = getBinary(RELAYPIN1);
+		if(relay_value == 0){
+
+			sendResultResponse(msg_id, command, ACP_SUCCESS, "0");
+		}else{
+
+			sendResultResponse(msg_id, command, ACP_SUCCESS, "1");
+		}
+		
+	}
+
+	free(msg_id);
+	free(device_id);
+	free(command);
+}
 
 int MediaPlayerUtil(char *request) {
 
