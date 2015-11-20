@@ -1424,9 +1424,11 @@ int isRequestMessageValid(char *msg_id, char *device_id, char *cmd, char *arg,
 		appLog(LOG_DEBUG, "message is not match!!");
 		return ACP_FAILED;
 	}
+	appLog(LOG_DEBUG, "device_id: %s, g_device_info.device_id: %s", device_id, g_device_info.device_id);
 	if (strcmp(device_id, g_device_info.device_id) != 0) {
 		return ACP_FAILED;
 	}
+	appLog(LOG_DEBUG, "message is valid");
 	return ACP_SUCCESS;
 }
 
@@ -1685,21 +1687,27 @@ int pauseMedia(char *message) {
 
 void setRelayBinary(char *message){
 
-	char *msg_id, *device_id, *command, value;
+	char *msg_id, *device_id, *command, *value;
 
 	msg_id = getXmlElementByName(message, "id");
 	device_id = getXmlElementByName(message, "deviceid");
 	command = getXmlElementByName(message, "command");
 	value = getXmlElementByName(message, "value");
+	
+	appLog(LOG_DEBUG, "set binary: %s", value);
 
 	if(isRequestMessageValid(msg_id, device_id, command, NULL, NULL) != ACP_SUCCESS){
 		sendResultResponse(msg_id, command, ACP_FAILED, "Request invalid");
 	}else{
 		
 		setBinary(RELAYPIN1, atoi(value));
+		appLog(LOG_DEBUG, "set binary: %s successful", value);
 		if (getBinary(RELAYPIN1) == atoi(value)){
+			
+			appLog(LOG_DEBUG, "get binary: %d successful", atoi(value));
 			sendResultResponse(msg_id, command, ACP_SUCCESS, value);
 		}else{
+			appLog(LOG_DEBUG, "get binary: %d successful", atoi(value));
 			sendResultResponse(msg_id, command, ACP_FAILED, "");
 		}
 	}
