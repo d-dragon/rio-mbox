@@ -31,6 +31,11 @@
 #define FILE_UNKNOW 2
 #define PY_MODULE "ftplib_example"
 #define FTP_GET_FILE_FUNC "getFile"
+#define FTP_PORT "2121"
+#define LEN_128B 128
+#define LEN_256B 256
+#define LEN_512B 512
+
 
 FILE *g_file_stream;
 int g_file_size;
@@ -58,6 +63,7 @@ void closeFileStream();
 int getListFile(char *, char *);
 
 int getFileFromFtp(char *FtpServerIP, char *FileName, char *UserName, char *Password);
+int get_file_from_ftpsrv(const char *ftp_servver_addr, const char *user_name, const char *passwd, const char *file_name);
 int getFile(char *);
 int changeConfigSetting(char *setting_name, char *new_value);
 int createDefaultConfigFile(char *mac_addr);

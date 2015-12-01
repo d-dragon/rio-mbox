@@ -14,12 +14,80 @@
 #include <dirent.h>
 #include <python2.7/Python.h>
 #include <libconfig.h>
+#include <curl/curl.h>
 
 #include "FileHandler.h"
 #include "sock_infra.h"
 #include "xmlHandler.h"
 #include "logger.h"
 #include "acpHandler.h"
+
+
+struct ftp_file_t {
+
+	const char *file_name;
+	FILE *file_stream;
+};
+
+/* This callback function was called in curl while data arrive */
+static size_t write_data_to_file_cb(void *buffer, size_t size, size_t nmemb, void *stream) {
+
+	struct ftp_file_t *out_file = (struct ftp_file_t *)stream;
+	if (out_file && !out_file->file_stream) {
+		/* open file for writing */
+		out_file->file_stream = fopen(out_file->file_name, "wb");
+		if (!out_file->file_stream) {
+			/* open file stream failed */
+			return -1;
+		}
+		return fwrite(buffer, size, nmemb, out_file->file_stream);
+	}
+}
+
+int get_file_from_ftpsrv(const char *ftp_servver_addr, const char *user_name, const char *passwd, const char *file_name) {
+
+	CURL *curl;
+	CURLcode ret;
+	struct ftp_file_t ftp_file;
+	
+	ftp_file.file_stream = NULL;
+	strcpy((char*) ftp_file.file_name, (char*) file_name);
+	
+	curl_global_init(CURL_GLOBAL_DEFAULT);
+	curl = curl_easy_init();
+
+	if (curl) {
+
+		char url[LEN_256B];
+		snprintf(url, LEN_256B, "ftp://%s:%s/demo/%s", ftp_servver_addr, FTP_PORT, file_name);
+		appLog(LOG_DEBUG, "url: %s", url);
+
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+		curl_easy_setopt(curl, CURLOPT_USERNAME, user_name);
+		curl_easy_setopt(curl, CURLOPT_PASSWORD, passwd);
+		curl_easy_setopt(curl, CURL_WRITEFUNCTION, write_data_to_file_cb);
+		curl_easy_setopt(curl, CURL_WRITEDATA, &ftp_file);
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+
+		ret = curl_easy_performc(curl);
+
+		curl_easy_cleanup(curl);
+
+		if (CURLE_OK != ret) {
+			appLog(LOG_DEBUG, "get file from ftp failed");
+			return FILE_ERROR;
+		}
+	}
+
+	if (ftp_file.file_stream) {
+		fclose(ftp_file.file_stream);
+	}
+
+	curl_global_cleanup();
+	return FILE_SUCCESS;
+	
+	return FILE_SUCCESS;
+}
 
 FILE *
 createFileStream(char *FileName) {
@@ -279,8 +347,8 @@ int getFile(char *message) {
 
 	appLog(LOG_DEBUG, " %s %s %s %s",
 			g_ServerInfo.ftp.Ip, pfile_name, g_ServerInfo.ftp.User, g_ServerInfo.ftp.Password);
-	ret = getFileFromFtp(g_ServerInfo.ftp.Ip, pfile_name, g_ServerInfo.ftp.User,
-			g_ServerInfo.ftp.Password);
+	//ret = getFileFromFtp(g_ServerInfo.ftp.Ip, pfile_name, g_ServerInfo.ftp.User, g_ServerInfo.ftp.Password);
+	ret = get_file_from_ftpsrv(g_ServerInfo.ftp.Ip, pfile_name, g_ServerInfo.ftp.User, g_ServerInfo.ftp.Password);
 	ret = sendResultResponse(msg_id, resp_for, ret, pfile_name);
 
 //	free(pftp_addr);
