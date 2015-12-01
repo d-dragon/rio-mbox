@@ -17,9 +17,9 @@
 
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?><message><id>24</id><type>request</type><action xsi:type="mediaAction" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><command>StopFile</command><filename></filename><type></type><volume>0.0</volume></action></message>
 
-<message><id>123</id><deviceid>MBox.B827EB7A7169</deviceid><type>request</type><action><command>SetBinary</command><value>0</value></action></message>
-<message><id>123</id><deviceid>MBox.B827EB7A7169</deviceid><type>request</type><action><command>SetBinary</command><value>1</value></action></message>
-<message><id>123</id><deviceid>MBox.B827EB7A7169</deviceid><type>request</type><action><command>GetBinary</command></action></message>]
+<message><id>123</id><deviceid>B827EB7A7169</deviceid><type>request</type><action><command>SetBinary</command><value>0</value></action></message>
+<message><id>123</id><deviceid>B827EB7A7169</deviceid><type>request</type><action><command>SetBinary</command><value>1</value></action></message>
+<message><id>123</id><deviceid>B827EB7A7169</deviceid><type>request</type><action><command>GetBinary</command></action></message>]
  */
 
 
