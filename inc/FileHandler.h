@@ -63,7 +63,7 @@ void closeFileStream();
 int getListFile(char *, char *);
 
 int getFileFromFtp(char *FtpServerIP, char *FileName, char *UserName, char *Password);
-int get_file_from_ftpsrv(const char *ftp_servver_addr, const char *user_name, const char *passwd, const char *file_name);
+int get_file_from_ftpsrv(const char *ftp_server_addr, const char *file_name, const char *user_name, const char *passwd);
 int getFile(char *);
 int changeConfigSetting(char *setting_name, char *new_value);
 int createDefaultConfigFile(char *mac_addr);

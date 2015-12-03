@@ -44,7 +44,7 @@ static size_t write_data_to_file_cb(void *buffer, size_t size, size_t nmemb, voi
 	}
 }
 
-int get_file_from_ftpsrv(const char *ftp_servver_addr, const char *user_name, const char *passwd, const char *file_name) {
+int get_file_from_ftpsrv(const char *ftp_server_addr, const char *file_name, const char *user_name, const char *passwd) {
 
 	CURL *curl;
 	CURLcode ret;
@@ -65,11 +65,11 @@ int get_file_from_ftpsrv(const char *ftp_servver_addr, const char *user_name, co
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_USERNAME, user_name);
 		curl_easy_setopt(curl, CURLOPT_PASSWORD, passwd);
-		curl_easy_setopt(curl, CURL_WRITEFUNCTION, write_data_to_file_cb);
-		curl_easy_setopt(curl, CURL_WRITEDATA, &ftp_file);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data_to_file_cb);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftp_file);
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
-		ret = curl_easy_performc(curl);
+		ret = curl_easy_perform(curl);
 
 		curl_easy_cleanup(curl);
 

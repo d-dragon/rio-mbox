@@ -2,7 +2,7 @@ This repo is source code of Mbox which is a part of project Rio. The application
 https://bitbucket.org/d-dragon/rio_mbox
 
 1. Dependencies
-Project use some thirdparty libraries: libxml2, libconfig, libpython2.7, wiringPi
+Project use some thirdparty libraries: libxml2, libconfig, libpython2.7, wiringPi, libcurl
 
 2. Build and install application
 Clone source code at: https://bitbucket.org/d-dragon/rio_mbox
