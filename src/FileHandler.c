@@ -347,8 +347,8 @@ int getFile(char *message) {
 
 	appLog(LOG_DEBUG, " %s %s %s %s",
 			g_ServerInfo.ftp.Ip, pfile_name, g_ServerInfo.ftp.User, g_ServerInfo.ftp.Password);
-	//ret = getFileFromFtp(g_ServerInfo.ftp.Ip, pfile_name, g_ServerInfo.ftp.User, g_ServerInfo.ftp.Password);
-	ret = get_file_from_ftpsrv(g_ServerInfo.ftp.Ip, pfile_name, g_ServerInfo.ftp.User, g_ServerInfo.ftp.Password);
+	ret = getFileFromFtp(g_ServerInfo.ftp.Ip, pfile_name, g_ServerInfo.ftp.User, g_ServerInfo.ftp.Password);
+	//ret = get_file_from_ftpsrv(g_ServerInfo.ftp.Ip, pfile_name, g_ServerInfo.ftp.User, g_ServerInfo.ftp.Password);
 	ret = sendResultResponse(msg_id, resp_for, ret, pfile_name);
 
 //	free(pftp_addr);

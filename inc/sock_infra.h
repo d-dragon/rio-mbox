@@ -28,7 +28,7 @@
 /*define and declare server socket*/
 #define TCP_PORT 1991
 #define UDP_PORT "1994"
-#define STREAM_SOCK_PORT "6969"
+#define STREAM_SOCK_PORT "69"
 #define UDP_MUL_PORT 5102
 #define BROADCAST_DEST_ADDR "255.255.255.255"
 #define MULTICAST_ADDR "239.255.1.111"
