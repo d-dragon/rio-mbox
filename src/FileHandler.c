@@ -30,18 +30,9 @@ struct ftp_file_t {
 };
 
 /* This callback function was called in curl while data arrive */
-static size_t write_data_to_file_cb(void *buffer, size_t size, size_t nmemb, void *stream) {
+static size_t write_data_to_file_cb(void *buffer, size_t size, size_t nmemb, FILE *stream) {
 
-	struct ftp_file_t *out_file = (struct ftp_file_t *)stream;
-	if (out_file && !out_file->file_stream) {
-		/* open file for writing */
-		out_file->file_stream = fopen(out_file->file_name, "wb");
-		if (!out_file->file_stream) {
-			/* open file stream failed */
-			return -1;
-		}
-		return fwrite(buffer, size, nmemb, out_file->file_stream);
-	}
+		return fwrite(buffer, size, nmemb, stream);
 }
 
 int get_file_from_ftpsrv(const char *ftp_server_addr, const char *file_name, const char *user_name, const char *passwd) {
@@ -51,7 +42,6 @@ int get_file_from_ftpsrv(const char *ftp_server_addr, const char *file_name, con
 	struct ftp_file_t ftp_file;
 	
 	ftp_file.file_stream = NULL;
-	strcpy((char*) ftp_file.file_name, (char*) file_name);
 	
 	curl_global_init(CURL_GLOBAL_DEFAULT);
 	curl = curl_easy_init();
@@ -59,6 +49,15 @@ int get_file_from_ftpsrv(const char *ftp_server_addr, const char *file_name, con
 	if (curl) {
 
 		char url[LEN_256B];
+
+		ftp_file.file_name = malloc(LEN_256B * sizeof(char));
+		snprintf(ftp_file.file_name, LEN_256B, "/media/data/%s", file_name);
+		ftp_file.file_stream = fopen(ftp_file.file_name, "wb");
+
+		if (NULL == ftp_file.file_stream) {
+			return FILE_ERROR;
+		}
+
 		snprintf(url, LEN_256B, "ftp://%s:%s/demo/%s", ftp_servver_addr, FTP_PORT, file_name);
 		appLog(LOG_DEBUG, "url: %s", url);
 
@@ -66,7 +65,8 @@ int get_file_from_ftpsrv(const char *ftp_server_addr, const char *file_name, con
 		curl_easy_setopt(curl, CURLOPT_USERNAME, user_name);
 		curl_easy_setopt(curl, CURLOPT_PASSWORD, passwd);
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data_to_file_cb);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftp_file);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, ftp_file.file_stream);
+		curl_easy_setopt(curl, CURLOPT_FTPPORT, "eth0:0"); //enable ftp active mode
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
 		ret = curl_easy_perform(curl);
@@ -74,6 +74,8 @@ int get_file_from_ftpsrv(const char *ftp_server_addr, const char *file_name, con
 		curl_easy_cleanup(curl);
 
 		if (CURLE_OK != ret) {
+
+			free(ftp_file.file_name);
 			appLog(LOG_DEBUG, "get file from ftp failed");
 			return FILE_ERROR;
 		}
@@ -84,9 +86,9 @@ int get_file_from_ftpsrv(const char *ftp_server_addr, const char *file_name, con
 	}
 
 	curl_global_cleanup();
+	free(ftp_file.file_name);
 	return FILE_SUCCESS;
 	
-	return FILE_SUCCESS;
 }
 
 FILE *
