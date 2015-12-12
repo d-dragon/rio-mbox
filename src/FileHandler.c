@@ -58,7 +58,7 @@ int get_file_from_ftpsrv(const char *ftp_server_addr, const char *file_name, con
 			return FILE_ERROR;
 		}
 
-		snprintf(url, LEN_256B, "ftp://%s:%s/demo/%s", ftp_servver_addr, FTP_PORT, file_name);
+		snprintf(url, LEN_256B, "ftp://%s:%s/demo/%s", ftp_server_addr, FTP_PORT, file_name);
 		appLog(LOG_DEBUG, "url: %s", url);
 
 		curl_easy_setopt(curl, CURLOPT_URL, url);
