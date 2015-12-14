@@ -267,6 +267,48 @@ int connecttoStreamSocket(char *addr, char *port) {
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_port = htons(atoi(port));
 	serv_addr.sin_addr.s_addr = inet_addr(addr);
+
+	/* Enable TCP keepalive */
+	lon = sizeof(valopt);
+	if (getsockopt(sd_sock, SOL_SOCKET, SO_KEEPALIVE, &valopt, &lon) < 0) {
+		appLog(LOG_DEBUG, "get SO_KEEPALIVE option failed!");
+		close(sd_sock);
+		return SOCK_ERROR;
+	}
+	appLog(LOG_DEBUG, "SO_KEEPALIVE is %s", (valopt ? "ON" : "OFF"));
+	if(valopt == 0) {
+		valopt = 1;
+		lon = sizeof(valopt);
+		if(setsockopt(sd_sock, SOL_SOCKET, SO_KEEPALIVE, &valopt, lon) < 0) {
+			appLog(LOG_DEBUG, "Enable SO_KEEPALIVE failed!");
+			close(sd_sock);
+			return SOCK_ERROR;
+		}
+	}
+
+	//Set keepalive setting value
+	valopt = 3;
+	if(setsockopt(sd_sock, SOL_TCP, TCP_KEEPCNT, &valopt, lon) < 0) {
+		appLog(LOG_DEBUG, "Set TCP_KEEPCNT=%d failed", valopt);
+		close(sd_sock);
+		return SOCK_ERROR;
+	}
+
+	valopt = 60;
+	if(setsockopt(sd_sock, SOL_TCP, TCP_KEEPIDLE, &valopt, lon) < 0) {
+		appLog(LOG_DEBUG, "Set TCP_KEEPIDLE=%d failed", valopt);
+		close(sd_sock);
+		return SOCK_ERROR;
+	}
+
+	valopt = 60;
+	if(setsockopt(sd_sock, SOL_TCP, TCP_KEEPINTVL, &valopt, lon) < 0) {
+		appLog(LOG_DEBUG, "Set TCP_KEEPINTVL=%d failed", valopt);
+		close(sd_sock);
+		return SOCK_ERROR;
+	}
+	appLog(LOG_DEBUG, "Configured KEEPALIVE successfully!");
+
 	//set non-blocking 
 	// Set non-blocking 
   	if( (sock_mode = fcntl(sd_sock, F_GETFL, NULL)) < 0) { 
