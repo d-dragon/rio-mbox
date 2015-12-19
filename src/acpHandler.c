@@ -1508,6 +1508,10 @@ void TaskReceiver() {
 			} else {
 				//handle message
 				appLog(LOG_DEBUG, "message received>>>>> %s", msg_buff);
+				if (0 == strcmp(msg_buff, "Ping Mbox ...")) {
+					send(stream_sock_fd, "Pong", strlen("Pong") + 1, 0);				
+					continue;
+				}
 				MessageProcessor(msg_buff);
 				memset(msg_buff, 0, BUFF_LEN_MAX);
 

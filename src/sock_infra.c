@@ -268,7 +268,7 @@ int connecttoStreamSocket(char *addr, char *port) {
 	serv_addr.sin_port = htons(atoi(port));
 	serv_addr.sin_addr.s_addr = inet_addr(addr);
 
-#ifdef 0
+#if 0
 	/* Enable TCP keepalive */
 	lon = sizeof(valopt);
 	if (getsockopt(sd_sock, SOL_SOCKET, SO_KEEPALIVE, &valopt, &lon) < 0) {
@@ -316,7 +316,7 @@ int connecttoStreamSocket(char *addr, char *port) {
 	tv.tv_sec = 120;
 	tv.tv_usec = 0;
 
-	setsockopt(sd_sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(timeval));
+	setsockopt(sd_sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(tv));
 
 	//set non-blocking 
 	// Set non-blocking 
