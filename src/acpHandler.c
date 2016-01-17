@@ -1496,6 +1496,10 @@ void TaskReceiver() {
 			buff_len = recv(stream_sock_fd, msg_buff, BUFF_LEN_MAX, 0);
 			if (buff_len < 0) {
 				appLog(LOG_ERR, "have no message received!!!");
+				close(stream_sock_fd);
+				free(msg_buff);
+				MediaPlayerUtil("stop");
+				exit(1);
 
 			} else if (buff_len == 0) {
 				//station is down, need more handle
@@ -1507,11 +1511,11 @@ void TaskReceiver() {
 				break;
 			} else {
 				//handle message
-				appLog(LOG_DEBUG, "message received>>>>> %s", msg_buff);
 				if (0 == strcmp(msg_buff, "Ping Mbox ...")) {
 					send(stream_sock_fd, "Pong", strlen("Pong") + 1, 0);				
 					continue;
 				}
+				appLog(LOG_DEBUG, "message received>>>>> %s", msg_buff);
 				MessageProcessor(msg_buff);
 				memset(msg_buff, 0, BUFF_LEN_MAX);
 
