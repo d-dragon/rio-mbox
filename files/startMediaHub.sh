@@ -24,8 +24,8 @@ else
 	count=`expr $count + 1`
 	echo "count=$count" >> /var/log/user.log
 	echo "network is not available" >> /var/log/user.log
-	sleep 3
-	if [ $count -eq 3 ]
+	sleep 5
+	if [ $count -eq 5 ]
 	then
 		echo "start app failed -> reboot" >> /var/log/user.log
 		reboot
