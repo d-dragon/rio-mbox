@@ -1495,11 +1495,13 @@ void TaskReceiver() {
 			appLog(LOG_DEBUG, "waiting incoming message...");
 			buff_len = recv(stream_sock_fd, msg_buff, BUFF_LEN_MAX, 0);
 			if (buff_len < 0) {
-				appLog(LOG_ERR, "have no message received!!!");
-				close(stream_sock_fd);
-				free(msg_buff);
-				MediaPlayerUtil("stop");
-				exit(1);
+				if (errno == EAGAIN) {
+					appLog(LOG_ERR, "have no message received!!! error code %d", buff_len);
+					close(stream_sock_fd);
+					free(msg_buff);
+					MediaPlayerUtil("stop");
+					exit(1);
+				}
 
 			} else if (buff_len == 0) {
 				//station is down, need more handle
