@@ -1,5 +1,6 @@
 #!/bin/bash 
 #get network interface ip
+server="10.0.0.78"
 flag=0
 echo $1
 count=0
@@ -11,10 +12,11 @@ mac_addr=`cat /sys/class/net/eth0/address | sed 's/\://g' | tr 'a-z' 'A-Z'`
 echo "ip=$ip" >> /var/log/user.log
 echo "netmask=$mask" >> /var/log/user.log
 echo "gateway=$gw" >> /var/log/user.log
+echo "server=$server" >> /var/log/user.log
 
 # -q quiet
 # -c nb of pings to perform
-ping -c 2 $gw > /dev/null
+ping -c 2 $server > /dev/null
 
 if [ $? -eq 0 ]
 then

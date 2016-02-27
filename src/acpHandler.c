@@ -1710,8 +1710,19 @@ void setRelayBinary(char *message){
 		sendResultResponse(msg_id, command, ACP_FAILED, "Request invalid");
 	}else{
 		
-		setBinary(RELAYPIN1, atoi(value));
+		int relay_status = atoi(value);
+		setBinary(RELAYPIN1, relay_status);
 		appLog(LOG_DEBUG, "set binary: %s successful", value);
+		sleep(1);
+		if (relay_status == 0) {
+			int ret = system("turnon_tv.sh");
+			if (ret == 0) {
+				appLog(LOG_DEBUG, "cec-client send message success");
+			} else {
+				appLog(LOG_DEBUG, "cec-client send message failed");
+			}
+				
+		}
 		if (getBinary(RELAYPIN1) == atoi(value)){
 			
 			appLog(LOG_DEBUG, "get binary: %d successful", atoi(value));
