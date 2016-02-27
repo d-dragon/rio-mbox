@@ -67,7 +67,7 @@ case "$1" in
   start)
     echo "Starting mbox"
     # run application you want to start
-    start_mbox
+    startMediaHub.sh &
     ;;
   stop)
     echo "Stopping mbox"

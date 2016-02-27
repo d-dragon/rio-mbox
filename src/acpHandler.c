@@ -1715,12 +1715,18 @@ void setRelayBinary(char *message){
 		appLog(LOG_DEBUG, "set binary: %s successful", value);
 		sleep(1);
 		if (relay_status == 0) {
-			int ret = system("turnon_tv.sh");
-			if (ret == 0) {
-				appLog(LOG_DEBUG, "cec-client send message success");
+			FILE *in;
+			extern FILE *popen();
+			char *buff[512];
+			if (!(in = popen("su -c turnon_tv.sh -s /bin/sh pi", "r"))) {
+				appLog(LOG_DEBUG, "cec-client send message failed:");
+				perror("popen");
 			} else {
-				appLog(LOG_DEBUG, "cec-client send message failed");
+				while(fgets(buff, sizeof(buff),in) != NULL) {
+					appLog(LOG_DEBUG, "return: %s", buff);
+				}
 			}
+			pclose(in);
 				
 		}
 		if (getBinary(RELAYPIN1) == atoi(value)){
