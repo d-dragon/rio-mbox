@@ -1718,7 +1718,7 @@ void setRelayBinary(char *message){
 			FILE *in;
 			extern FILE *popen();
 			char *buff[512];
-			if (!(in = popen("su -c turnon_tv.sh -s /bin/sh pi", "r"))) {
+			if (!(in = popen("su -c \"turnonoff_tv.sh on\" -s /bin/sh pi", "r"))) {
 				appLog(LOG_DEBUG, "cec-client send message failed:");
 				perror("popen");
 			} else {
@@ -1728,6 +1728,19 @@ void setRelayBinary(char *message){
 			}
 			pclose(in);
 				
+		} else {
+			FILE *in;
+			extern FILE *popen();
+			char *buff[512];
+			if (!(in = popen("su -c \"turnonoff_tv.sh off\" -s /bin/sh pi", "r"))) {
+				appLog(LOG_DEBUG, "cec-client send message failed:");
+				perror("popen");
+			} else {
+				while(fgets(buff, sizeof(buff),in) != NULL) {
+					appLog(LOG_DEBUG, "return: %s", buff);
+				}
+			}
+			pclose(in);
 		}
 		if (getBinary(RELAYPIN1) == atoi(value)){
 			
