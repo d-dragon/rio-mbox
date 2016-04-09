@@ -1495,7 +1495,13 @@ void TaskReceiver() {
 			appLog(LOG_DEBUG, "waiting incoming message...");
 			buff_len = recv(stream_sock_fd, msg_buff, BUFF_LEN_MAX, 0);
 			if (buff_len < 0) {
-				appLog(LOG_ERR, "have no message received!!!");
+				if (errno == EAGAIN) {
+					appLog(LOG_ERR, "have no message received!!! error code %d", buff_len);
+					close(stream_sock_fd);
+					free(msg_buff);
+					MediaPlayerUtil("stop");
+					exit(1);
+				}
 
 			} else if (buff_len == 0) {
 				//station is down, need more handle
@@ -1507,11 +1513,11 @@ void TaskReceiver() {
 				break;
 			} else {
 				//handle message
-				appLog(LOG_DEBUG, "message received>>>>> %s", msg_buff);
 				if (0 == strcmp(msg_buff, "Ping Mbox ...")) {
 					send(stream_sock_fd, "Pong", strlen("Pong") + 1, 0);				
 					continue;
 				}
+				appLog(LOG_DEBUG, "message received>>>>> %s", msg_buff);
 				MessageProcessor(msg_buff);
 				memset(msg_buff, 0, BUFF_LEN_MAX);
 
@@ -1704,8 +1710,38 @@ void setRelayBinary(char *message){
 		sendResultResponse(msg_id, command, ACP_FAILED, "Request invalid");
 	}else{
 		
-		setBinary(RELAYPIN1, atoi(value));
+		int relay_status = atoi(value);
+		setBinary(RELAYPIN1, relay_status);
 		appLog(LOG_DEBUG, "set binary: %s successful", value);
+		sleep(1);
+		if (relay_status == 0) {
+			FILE *in;
+			extern FILE *popen();
+			char *buff[512];
+			if (!(in = popen("su -c \"turnonoff_tv.sh on\" -s /bin/sh pi", "r"))) {
+				appLog(LOG_DEBUG, "cec-client send message failed:");
+				perror("popen");
+			} else {
+				while(fgets(buff, sizeof(buff),in) != NULL) {
+					appLog(LOG_DEBUG, "return: %s", buff);
+				}
+			}
+			pclose(in);
+				
+		} else {
+			FILE *in;
+			extern FILE *popen();
+			char *buff[512];
+			if (!(in = popen("su -c \"turnonoff_tv.sh off\" -s /bin/sh pi", "r"))) {
+				appLog(LOG_DEBUG, "cec-client send message failed:");
+				perror("popen");
+			} else {
+				while(fgets(buff, sizeof(buff),in) != NULL) {
+					appLog(LOG_DEBUG, "return: %s", buff);
+				}
+			}
+			pclose(in);
+		}
 		if (getBinary(RELAYPIN1) == atoi(value)){
 			
 			appLog(LOG_DEBUG, "get binary: %d successful", atoi(value));

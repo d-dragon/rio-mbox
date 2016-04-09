@@ -44,6 +44,9 @@ install:
 	cp files/startMediaHub.sh /usr/bin/
 	cp files/omxplayer_dbus_control.sh /usr/bin/
 	cp src/ftplib_example.py /usr/bin/
+	cp files/config.txt /boot/
+	cp files/turnonoff_tv.sh /usr/bin/
+	cp files/initmbox /etc/init.d/
 
 clean:
 	rm -rf $(BINDIR) $(DEPDIR) $(OBJDIR)
