@@ -1,5 +1,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <errno.h>
 #include <unistd.h>
 #include "playAudio.h"
 #include "logger.h"
@@ -384,14 +385,23 @@ int initMediaPlayer(PlayingInfo *info) {
 
 	int count = 0;
 	char shell_cmd[256];
+	int thread_ret = 0;
 
-	if (pthread_create(&g_media_player_thd, NULL, &playMediaThread,
-			(void *) info)) {
+	if ((thread_ret = pthread_create(&g_media_player_thd, NULL, &playMediaThread,
+			(void *) info)) != 0) {
 		free(info->filename);
 		free(info->type);
-		appLog(LOG_DEBUG, "init playAudioThreadAlt failed!");
+		appLog(LOG_DEBUG, "init playAudioThreadAlt failed!, err code = %d", thread_ret);
+		if (thread_ret == EAGAIN) {
+			appLog(LOG_DEBUG, "Insufficient resources to create another thread");
+		}
 		return ACP_FAILED;
+	} else {
+		if (!pthread_detach(g_media_player_thd)){
+			appLog(LOG_DEBUG, "Thread detached successfully!");
+		}
 	}
+	appLog(LOG_DEBUG, "thread id: %d", g_media_player_thd);
 	do { // try to check audio flag for 0.5s
 		 //sleep short period time for waiting play audio thread start
 		usleep(100000);
