@@ -264,6 +264,10 @@ void *playMediaThread(void *arg) {
 		appLog(LOG_DEBUG, "inside %s", __FUNCTION__);
 		snprintf(cmd_buf, 256, "omxplayer -o hdmi \"%s%s\"", DEFAULT_PATH,
 				info->filename);
+	} if (strcmp(info->type, "stream") == 0) {
+		//play audio stream
+		appLog(LOG_DEBUG, "inside %s", __FUNCTION__);
+		snprintf(cmd_buf, 256, "omxplayer -o local \"%s\"", info->filename);
 	} else {
 		//play audio -> jack 3.5
 		appLog(LOG_DEBUG, "inside %s", __FUNCTION__);
