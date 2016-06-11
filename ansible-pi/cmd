@@ -1,0 +1,1 @@
+ansible rio_mbox -i hosts -u pi -k -a "ls /home/pi/"
