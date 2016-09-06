@@ -42,6 +42,7 @@ enum request_cmd_index {
 	DELETE_FILE,
 	SET_BINARY,
 	GET_BINARY,
+	CHANGE_VOLUME,
 	CLOSE_TASK_HANDLER
 };
 
@@ -55,6 +56,7 @@ static struct RequestCmd RequestCmdList[] = {
 		{ "ChangeRoomName",	CHANGE_DEVICE_NAME, 1, "new_name" },
 		{ "SetBinary",	SET_BINARY, 1, "value" },
 		{ "GetBinary",	GET_BINARY, 0, "" },
+		{ "ChangeVolume", CHANGE_VOLUME, 1, "value"},
 		{ "DeleteFile",	DELETE_FILE, 1, "file_name" } 
 };
 
@@ -94,6 +96,7 @@ int isRequestMessageValid(char *msg_id, char *device_id, char *cmd, char *arg,
 int MediaPlayerUtil(char *request);
 void setRelayBinary(char *message);
 void getRelayBinary(char *message);
+void changeVolume(char *message);
 
 /*
  pthread_mutex_t g_file_buff_mutex_2 = PTHREAD_MUTEX_INITIALIZER;
@@ -709,6 +712,9 @@ int RequestMessageHandler(char *message) {
 		appLog(LOG_DEBUG, "called get relay binary");
 		getRelayBinary(message);
 		break;
+	case CHANGE_VOLUME:
+		appLog(LOG_DEBUG, "called set volume function");
+		changeVolume(message);
 	default:
 		break;
 	}
@@ -1782,6 +1788,40 @@ void getRelayBinary(char *message){
 		
 	}
 
+	free(msg_id);
+	free(device_id);
+	free(command);
+}
+
+void changeVolume(char *message) {
+
+	char *msg_id, *device_id, *command;
+
+	msg_id = getXmlElementByName(message, "id");
+	device_id = getXmlElementByName(message, "deviceid");
+	command = getXmlElementByName(message, "command");
+	
+	if(isRequestMessageValid(msg_id, device_id, command, NULL, NULL) != ACP_SUCCESS){
+		sendResultResponse(msg_id, command, ACP_FAILED, "Request invalid");
+	}else{
+		char *volume;
+		volume = getXmlElementByName(message, "volume");
+		if(volume != NULL) {
+			unsigned int vol_value;
+			vol_value = atoi(volume);
+			char shell_cmd[128];
+			snprintf(shell_cmd, 128, "amixer -c 0 cset numid=1 -- %d%", vol_value);
+			if(system(shell_cmd) == 0) {
+				sendResultResponse(msg_id, command, ACP_SUCCESS, volume);
+			} else {
+				sendResultResponse(msg_id, command, ACP_FAILED, volume);
+			}
+
+		} else {
+			sendResultResponse(msg_id, command, ACP_FAILED, volume);
+		}
+		free(volume);
+	}
 	free(msg_id);
 	free(device_id);
 	free(command);
