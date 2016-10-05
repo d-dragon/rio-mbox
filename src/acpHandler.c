@@ -43,6 +43,7 @@ enum request_cmd_index {
 	SET_BINARY,
 	GET_BINARY,
 	CHANGE_VOLUME,
+	GET_FILE_LIST,
 	CLOSE_TASK_HANDLER
 };
 
@@ -57,6 +58,7 @@ static struct RequestCmd RequestCmdList[] = {
 		{ "SetBinary",	SET_BINARY, 1, "value" },
 		{ "GetBinary",	GET_BINARY, 0, "" },
 		{ "ChangeVolume", CHANGE_VOLUME, 1, "value"},
+		{ "GetFileList", GET_FILE_LIST, 0, ""},
 		{ "DeleteFile",	DELETE_FILE, 1, "file_name" } 
 };
 
@@ -97,6 +99,7 @@ int MediaPlayerUtil(char *request);
 void setRelayBinary(char *message);
 void getRelayBinary(char *message);
 void changeVolume(char *message);
+void getFileList(char *message);
 
 /*
  pthread_mutex_t g_file_buff_mutex_2 = PTHREAD_MUTEX_INITIALIZER;
@@ -715,6 +718,9 @@ int RequestMessageHandler(char *message) {
 	case CHANGE_VOLUME:
 		appLog(LOG_DEBUG, "called set volume function");
 		changeVolume(message);
+	case GET_FILE_LIST:
+		appLog(LOG_DEBUG, "called get file list function");
+		getFileList(message);
 	default:
 		break;
 	}
@@ -1826,7 +1832,29 @@ void changeVolume(char *message) {
 	free(device_id);
 	free(command);
 }
+void getFileList(char *message) {
 
+	char *msg_id, *device_id, *command;
+
+	msg_id = getXmlElementByName(message, "id");
+	device_id = getXmlElementByName(message, "deviceid");
+	command = getXmlElementByName(message, "command");
+	
+	if(isRequestMessageValid(msg_id, device_id, command, NULL, NULL) != ACP_SUCCESS){
+		sendResultResponse(msg_id, command, ACP_FAILED, "Request invalid");
+	}else{
+		char file_list[2048];
+		if(FILE_SUCCESS == getListFile(DEFAULT_PATH, file_list)) {
+			sendResultResponse(msg_id, command, ACP_SUCCESS, file_list);
+		} else {
+			sendResultResponse(msg_id, command, ACP_FAILED, "Can not access media directory");
+		}
+	}
+
+	free(msg_id);
+	free(device_id);
+	free(command);
+}
 int MediaPlayerUtil(char *request) {
 
 	char shell[128];
