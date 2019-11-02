@@ -16,6 +16,15 @@ $ sudo reboot
 
 3. Configuration
 Modify station address in file `/etc/mbox.cfg`
+```
+mbox_config : 
+{
+  config_flag = 0;
+  deviceID = "B827EB61723D";
+  deviceName = "MBox.B827EB61723D";
+  station = "10.60.59.200";
+};
+```
 Then restart board.
 
 4. Debug
